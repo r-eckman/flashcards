@@ -1,0 +1,201 @@
+[{:front "In hard (crisp) partitional clustering, how many clusters can a data point belong to?" :back "Exactly one."}
+ {:front "In fuzzy partitional clustering, how many clusters can a data point belong to?" :back "All K clusters, each to a degree of membership u_ij in [0, 1]."}
+ {:front "What does u_ij represent?" :back "The membership coefficient of the jth object in the ith cluster."}
+ {:front "Hard K-partition condition (Eq. 1.1)" :back "No empty clusters: C_i ≠ ∅ for i = 1..K."}
+ {:front "Hard K-partition condition (Eq. 1.2)" :back "The union of all clusters equals X (every point is assigned)."} 
+ {:front "Hard K-partition condition (Eq. 1.3)" :back "Clusters are pairwise disjoint: C_i ∩ C_j = ∅ for i ≠ j."}
+ {:front "Fuzzy constraint Eq. 1.4: what must each point's memberships satisfy?" :back "They sum to 1 across all clusters: Σ_i u_ij = 1 for every j."}
+ {:front "Fuzzy constraint Eq. 1.5: what does Σ_j u_ij < N prevent?" :back "Any single cluster having full membership of all N points (absorbing the whole dataset)."}
+ {:front "What does the membership matrix of a hard partition look like?" :back "A K × N matrix of 0s and 1s, with exactly one 1 in each column."}
+ {:front "How is a hard partition a special case of a fuzzy partition?" :back "Restrict every u_ij to {0, 1}; Eq. 1.4 then forces each point into exactly one cluster."}
+{:front "How do you convert (defuzzify) a fuzzy partition into a hard one?" :back "Assign each point to the cluster where it has the highest membership."}
+ {:front "What information is lost when a fuzzy partition is hardened?" :back "How ambiguous each point was: a borderline point (0.55) becomes as certain as a core point (0.95)."}
+{:front "Two reasons the textbook gives for using fuzzy clustering" :back "1) Cluster boundaries are ambiguous or not well separated. 2) Memberships reveal richer relationships between objects and clusters."}
+{:front "Boundary type in hard vs. fuzzy clustering (Slides 16–17)" :back "Hard: crisp boundary. Fuzzy: fuzzy boundary."}
+ {:front "Is (0.4, 0.4, 0.2) a valid fuzzy membership column? What happens if you harden it?" :back "Valid (sums to 1). Hardening is a tie between clusters 1 and 2, broken arbitrarily."}
+{:front "Fuzzy c-means cost function" :back "J(U, M) = Σ_i Σ_j (u_ij)^m D_ij², where U is the fuzzy partition matrix and M the prototypes."}
+ {:front "In FCM, what happens as the fuzzifier m → 1?" :back "Memberships become hard (0/1); FCM behaves like k-means."}
+ {:front "In FCM, what happens as the fuzzifier m becomes very large?" :back "Memberships approach 1/c for every cluster (maximally fuzzy)."}
+ {:front "Partition coefficient (PC) formula" :back "PC = (1/N) Σ_i Σ_j u_ij²"}
+ {:front "Range of PC, and what its extremes mean" :back "[1/K, 1]. PC = 1 means a hard partition; PC = 1/K means every point has equal membership 1/K (fuzziest)."}
+ {:front "Range of partition entropy (PE), and what its extremes mean" :back "[0, log_a K]. PE = 0 means a hard partition; PE = log_a K means the fuzziest partition."}
+ {:front "What does hierarchical clustering produce, instead of a single partition?" :back "A sequence of nested partitions, usually drawn as a dendrogram."}
+ {:front "When is clustering H_i nested in clustering H_j (where |H_j| < |H_i|)?" :back "When every cluster of H_i is a subset of some cluster in H_j."}
+ {:front "In a dendrogram, what do the root, the leaves, and the height represent?" :back "Root = the whole data set; leaves = individual data points; height = the distance at which clusters are joined."}
+ {:front "How do you get a final set of clusters from a dendrogram?" :back "Cut the dendrogram at an appropriate level."}
+ {:front "Agglomerative clustering: starting state and direction" :back "Starts with N singleton clusters and merges them bottom-up until one cluster remains."}
+ {:front "Divisive clustering: starting state and direction" :back "Starts with all N points in one cluster and splits top-down until every cluster is a singleton."}
+{:front "The 4 steps of general agglomerative clustering" :back "1) Start with N singletons and compute the proximity matrix. 2) Merge the two closest clusters. 3) Update the proximity matrix. 4) Repeat until one cluster remains."}
+ {:front "How many possible two-subset divisions must a brute-force divisive method consider for a cluster of N points?" :back "2^(N-1) - 1"}
+ {:front "Why are agglomerative methods used more widely than divisive methods?" :back "Divisive methods must consider 2^(N-1) - 1 possible splits, which is very computationally expensive."}
+{:front "Advantage of divisive clustering over agglomerative clustering" :back "It forms large clusters first, so it shows the main structure more clearly and is less affected by accumulated early mistakes."}
+ {:front "Main weakness shared by agglomerative and divisive clustering" :back "Once a merge or split is made it is never revisited, so earlier mistakes cannot be corrected."}
+ {:front "Minimum computational complexity of classical hierarchical clustering" :back "O(N^2)"}
+{:front "Pros of agglomerative hierarchical clustering (Ch. 3 slides)" :back "Good visualization, easy implementation, and it avoids having to choose the number of clusters in advance."}
+ {:front "Cons of agglomerative hierarchical clustering" :back "High computational complexity (O(N^2)), lack of robustness / sensitivity to noise and outliers, and no global objective function."}
+ {:front "What general formula expresses many agglomerative linkage methods?" :back "The Lance–Williams recurrence (Eq. 3.1): D(C_l, C_ij) = α_i D(C_l,C_i) + α_j D(C_l,C_j) + β D(C_i,C_j) + γ |D(C_l,C_i) - D(C_l,C_j)|."}
+ {:front "Single linkage: how is the distance between two clusters defined?" :back "The distance between the two closest points, one from each cluster (nearest neighbor method)."}
+{:front "Which linkage method is prone to the chaining effect?" :back "Single linkage."}
+{:front "Complete linkage: how is the distance between two clusters defined?" :back "The distance between the two farthest points, one from each cluster (farthest neighbor method)."}
+{:front "Group average linkage (UPGMA): how is the distance between two clusters defined?" :back "The average distance over all pairs of points, one from each cluster."}
+{:front "Ward's method merges the pair of clusters that..." :back "...produces the smallest increase in the within-cluster sum of squares. It tends to find equal-sized, spherical clusters."}
+{:front "What does DIANA stand for, and what type of algorithm is it?" :back "DIvisive ANAlysis; a divisive hierarchical clustering algorithm (Kaufman & Rousseeuw, 1990)."}
+{:front "In DIANA, which cluster is chosen to be split next?" :back "The cluster with the largest diameter (the largest distance between any two of its points)."}
+{:front "In DIANA, how is the splinter group seeded?" :back "With the point that has the largest average distance to all other points in the cluster."}
+{:front "In DIANA, when does a point move to the splinter group, and when does the split stop?" :back "Move the point with the largest positive value of (avg distance to remaining group) - (avg distance to splinter group). Stop when no value is positive."}
+{:front "Polythetic vs. monothetic divisive clustering" :back "Polythetic uses all features at each split (e.g., DIANA). Monothetic splits on one feature per step (e.g., MONA)."}
+{:front "What kind of data is MONA used for, and how does it choose the splitting feature?" :back "Binary data. It picks a feature based on its association with the other features."}
+{:front "DIANA is splitting a cluster. Point x has an average distance of 7 to the remaining group and 2 to the splinter group. Does x move to the splinter group?" :back "Yes, if 7 - 2 = 5 is the largest positive difference among the remaining points. A positive difference means x is closer to the splinter group than to the group it's in."} 
+ {:front "What criterion does K-means minimize?" :back "The sum-of-squared error: J = Σ_i Σ_j γ_ij ||x_j − m_i||², the total squared distance from each point to its own cluster centroid."}
+{:front "In the K-means criterion, what are γ_ij and m_i?" :back "γ_ij ∈ {0, 1} is the hard partition matrix (1 if point j is in cluster i). m_i is the centroid (mean) of cluster i."}
+{:front "Does K-means produce a hard or a fuzzy partition?" :back "Hard: each point belongs to exactly one cluster."}
+{:front "Why can't we just try every possible partition to minimize J?" :back "The number of partitions explodes combinatorially (30 points into 3 clusters is about 2 × 10^14), so iterative heuristics are used instead."}
+{:front "The four steps of the K-means algorithm" :back "1) Initialize a K-partition and compute centroids. 2) Assign each point to the nearest centroid. 3) Recompute each centroid as the mean of its points. 4) Repeat 2–3 until assignments stop changing."}
+{:front "Why is the mean the right prototype for K-means?" :back "The mean is the unique minimizer of the sum of squared Euclidean distances to a set of points (set the derivative to zero)."}
+{:front "Which prototype minimizes L1 (absolute) error?" :back "The median."}
+{:front "What is a medoid?" :back "The most centrally located actual data point in a cluster: the one with the smallest total (or average) distance to the others."}
+{:front "Why is a medoid more robust to outliers than a mean?" :back "It must be a real, central data point, so an extreme point cannot drag it far away. A mean is pulled toward outliers."}
+{:front "What prototype is used when clustering categorical data, where a mean is undefined?" :back "The mode (as in K-modes)."}
+{:front "Why does K-means always converge?" :back "Neither step increases J: reassignment moves points to closer centroids, and the mean minimizes each cluster's squared error. J is bounded below and there are finitely many partitions."}
+{:front "Does K-means converge to the global minimum of J?" :back "Not necessarily. It is a hill-climbing method and converges to a local minimum that depends on the initialization."}
+{:front "State the scatter decomposition identity for K-means." :back "TSS = WSS + BSS: total scatter = within-cluster scatter + between-cluster scatter."}
+{:front "Why is minimizing within-cluster scatter equivalent to maximizing between-cluster scatter?" :back "Total scatter depends only on the data, not on the partition, so for a fixed dataset and K, any decrease in WSS is an equal increase in BSS."}
+{:front "What geometric structure do K-means' decision regions form?" :back "A Voronoi tessellation: each region contains the points closer to one centroid than to any other, separated by linear (hyperplane) boundaries."}
+{:front "What cluster shapes does K-means handle well?" :back "Compact, roughly hyperspherical clusters."}
+{:front "What cluster shapes does K-means handle poorly, and why?" :back "Elongated, curved, or nested clusters, because its boundaries between clusters are always linear."}
+{:front "Time complexity of K-means" :back "O(NKdT) for N points, K clusters, d dimensions and T iterations, which is effectively linear in N."}
+{:front "Main strengths of K-means" :back "Fast (linear in N), easy to implement, and good for compact, hyperspherical clusters."}
+{:front "Main weaknesses of K-means" :back "Converges to local optima, depends on initialization, K must be chosen in advance, sensitive to outliers, and needs a meaningful mean."}
+{:front "Why are outliers especially harmful to K-means?" :back "Distances are squared, so a far-away point adds a very large term to J and pulls its cluster's mean toward it."}
+{:front "Forgy's initialization method" :back "Randomly choose K data points as initial centroids, then assign the remaining points to the nearest one."}
+{:front "How does MacQueen's initialization differ from Forgy's?" :back "It works online (one point at a time), so the result depends on the order in which points are presented."}
+{:front "Kaufman and Rousseeuw's initialization method" :back "Build centroids one at a time: first the most central point, then each next point that most decreases the cost, until K are chosen."}
+{:front "How does global K-means work, and what is its main drawback?" :back "It grows the number of clusters from 1 to K, trying every data point as the next new centroid. Drawback: it runs K-means N times per step, which is expensive."}
+{:front "Simple, widely recommended way to reduce K-means' dependence on initialization" :back "Run K-means many times from random starts and keep the solution with the lowest J."}
+{:front "Name some validity measures used to choose K." :back "Silhouette, the gap statistic, the elbow method, and stability across runs."}
+{:front "If several validity measures disagree about the best K, what might that mean?" :back "The data may have meaningful structure at more than one scale. There is no universal true K without labels or domain requirements."}
+{:front "How does online K-means update its prototypes?" :back "Present one input at a time, find the closest (winning) prototype, and move that prototype toward the input."}
+{:front "How is K-means a special case of the EM algorithm?" :back "It is EM for a Gaussian mixture with covariances proportional to the identity, using hard assignments. E-step = assign points to the nearest centroid; M-step = update the centroids."}
+{:front "How is K-means related to fuzzy c-means?" :back "FCM is its fuzzy generalization. As the fuzzifier m → 1, FCM's memberships become hard and it reduces to K-means."}
+{:front "Points 1, 2, 6, 9, 10 with K = 2. Compute J for the partition {1, 2} and {6, 9, 10}." :back "Centroids 1.5 and 25/3. J = (0.25 + 0.25) + (5.44 + 0.44 + 2.78) ≈ 0.5 + 8.67 ≈ 9.17."}
+{:front "Two K-means runs on the same data both converge, one with J = 9.17 and one with J = 14.5. What does this show?" :back "K-means converges to local minima that depend on initialization. Keep the run with the lower J."}
+{:front "What is 'proximity' a general term for?"
+  :back "Both dissimilarity (distance) and similarity."}
+ {:front "The two conditions every distance (dissimilarity) function must satisfy"
+  :back "Symmetry: D(x_i, x_j) = D(x_j, x_i). Positivity: D(x_i, x_j) ≥ 0."}
+ {:front "Which two extra conditions turn a distance function into a metric?"
+  :back "Triangle inequality: D(x_i, x_j) ≤ D(x_i, x_k) + D(x_k, x_j). Reflexivity: D(x_i, x_j) = 0 if and only if x_i = x_j."}
+ {:front "What is a semimetric?"
+  :back "A distance function that satisfies every metric condition except the triangle inequality."}
+ {:front "What stronger condition makes a metric an ultrametric?"
+  :back "D(x_i, x_j) ≤ max(D(x_i, x_k), D(x_j, x_k)) for all x_k."}
+ {:front "The two basic conditions on a similarity function"
+  :back "Symmetry: S(x_i, x_j) = S(x_j, x_i). Positivity/boundedness: 0 ≤ S(x_i, x_j) ≤ 1."}
+ {:front "When is a similarity function called a similarity metric?"
+  :back "When it also satisfies S(x_i,x_j)·S(x_j,x_k) ≤ [S(x_i,x_j) + S(x_j,x_k)]·S(x_i,x_k), and S(x_i, x_j) = 1 if and only if x_i = x_j."}
+ {:front "Simple way to turn a similarity S in [0, 1] into a distance"
+  :back "D = 1 − S."}
+ {:front "Continuous vs. discrete vs. binary features"
+  :back "Continuous: values from an uncountably infinite range. Discrete: a finite or countably infinite set of values. Binary: exactly two values."}
+ {:front "The four measurement levels, from weakest to strongest"
+  :back "Nominal, ordinal, interval, ratio."}
+ {:front "Nominal vs. ordinal features"
+  :back "Both are labels. Nominal labels have no order (e.g., color); ordinal labels have a meaningful order (e.g., none < slight < severe)."}
+ {:front "Interval vs. ratio features"
+  :back "Both have meaningful differences. Ratio features also have an absolute zero, so ratios are meaningful (e.g., weight, but not temperature in °C)."}
+ {:front "Strategies for handling missing feature values when computing proximity"
+  :back "Discard incomplete objects; use only the features both objects have; impute with the feature mean (or neighbors' values); or substitute the average distance for that feature."}
+ {:front "How do you compute a distance using only the available features?"
+  :back "Sum the per-feature distances over features present in both objects, then scale by d / (number of features used) so the result is comparable to a full-feature distance."}
+ {:front "Minkowski (L_p) distance formula"
+  :back "D(x_i, x_j) = (Σ_l |x_il − x_jl|^p)^(1/p)"}
+ {:front "Which Minkowski distances correspond to p = 1, p = 2, and p → ∞?"
+  :back "p = 1: Manhattan / city-block (L1). p = 2: Euclidean (L2). p → ∞: sup / Chebyshev distance (L∞), the largest single-feature difference."}
+ {:front "Compute the L1, L2 and L∞ distances between (0, 0) and (3, 4)."
+  :back "L1 = 3 + 4 = 7. L2 = √(9 + 16) = 5. L∞ = max(3, 4) = 4."}
+ {:front "In 2-D, what shape is the set of points at distance 1 from the origin under L1, L2, and L∞?"
+  :back "L1: a diamond (square with vertices on the axes). L2: a circle. L∞: a square with sides parallel to the axes."}
+ {:front "Which Minkowski distance is invariant to translation and rotation?"
+  :back "Only Euclidean (L2). Other values of p are not rotation-invariant."}
+ {:front "Why should features usually be standardized before using Euclidean distance?"
+  :back "Features with larger scales or ranges dominate the distance, regardless of how important they are."}
+ {:front "Z-score standardization of a feature"
+  :back "x* = (x − mean) / standard deviation. The feature then has mean 0 and standard deviation 1."}
+ {:front "Min-max normalization of a feature"
+  :back "x* = (x − min) / (max − min). The feature then lies in [0, 1]."}
+ {:front "Squared Mahalanobis distance formula"
+  :back "D(x_i, x_j) = (x_i − x_j)^T S^(−1) (x_i − x_j), where S is the covariance matrix."}
+ {:front "What does Mahalanobis distance account for that Euclidean distance does not?"
+  :back "Correlations between features and differences in their variances."}
+ {:front "What cluster shape does Mahalanobis distance tend to produce?"
+  :back "Hyperellipsoidal clusters."}
+ {:front "When does squared Mahalanobis distance reduce to squared Euclidean distance?"
+  :back "When the covariance matrix is the identity (uncorrelated features with unit variance)."}
+ {:front "Main computational drawback of Mahalanobis distance"
+  :back "It requires inverting the covariance matrix, which is expensive for high-dimensional or large-scale data."}
+ {:front "What assumption does the point symmetry distance make about clusters?"
+  :back "That clusters are symmetric about a reference point, such as the cluster centroid."}
+ {:front "Pearson correlation coefficient between two objects (range and meaning)"
+  :back "Range [−1, 1]. It measures how similarly the two feature profiles rise and fall around their own means: 1 = identical shape, −1 = opposite shape."}
+ {:front "How is a distance in [0, 1] built from the Pearson correlation r?"
+  :back "D = (1 − r) / 2."}
+ {:front "Objects x = (1, 2, 3) and y = (11, 12, 13). Compare their Euclidean distance and Pearson correlation."
+  :back "Euclidean ≈ 17.3, which is large. Pearson r = 1, which is perfect. Correlation compares shape, not magnitude."}
+ {:front "Main limitation of correlation-based distances"
+  :back "They capture differences in shape but not differences in magnitude. They are also meaningless when features are measured on different scales."}
+ {:front "Cosine similarity formula"
+  :back "S(x_i, x_j) = (x_i^T x_j) / (||x_i|| ||x_j||), the cosine of the angle between the two vectors."}
+ {:front "Cosine similarity between x and 2x"
+  :back "1. They point in the same direction, and cosine ignores magnitude."}
+ {:front "Which of these are metrics: Minkowski, Mahalanobis, point symmetry, Pearson correlation, cosine?"
+  :back "Metrics: Minkowski (including L1, L2, L∞) and Mahalanobis. Not metrics: point symmetry, Pearson correlation, cosine."}
+ {:front "Typical application of Pearson correlation as a proximity measure"
+  :back "Gene expression data, where co-expression patterns (profile shape) matter more than absolute levels."}
+ {:front "Typical application of cosine similarity"
+  :back "Document clustering, or any high-dimensional sparse vectors."}
+ {:front "In the binary contingency table for two objects, what do n11, n00, n10 and n01 count?"
+  :back "n11: features present in both. n00: features absent in both. n10 and n01: features present in only one object."}
+ {:front "Symmetric vs. asymmetric binary features"
+  :back "Symmetric: both values are equally informative (e.g., male/female). Asymmetric: presence (1) is more informative than absence (0), e.g., having a rare gene."}
+ {:front "General form of invariant similarity for symmetric binary features"
+  :back "S = (n11 + n00) / (n11 + n00 + w(n10 + n01))"}
+ {:front "Names of the invariant binary similarities for w = 1, 2, and 1/2"
+  :back "w = 1: simple matching coefficient. w = 2: Rogers–Tanimoto. w = 1/2: Sokal–Sneath."}
+ {:front "General form of non-invariant similarity for asymmetric binary features"
+  :back "S = n11 / (n11 + w(n10 + n01)). The 0–0 matches are ignored."}
+ {:front "Names of the non-invariant binary similarities for w = 1, 2, and 1/2"
+  :back "w = 1: Jaccard. w = 2: Sokal–Sneath. w = 1/2: Dice."}
+ {:front "Why do asymmetric binary similarities ignore n00?"
+  :back "Two objects both lacking a rare property says little about whether they are similar, so 0–0 matches are treated as uninformative."}
+ {:front "What distance corresponds to 1 − (simple matching coefficient)?"
+  :back "The (normalized) Hamming distance: the fraction of features on which the two objects differ."}
+ {:front "x = (1, 0, 1, 1, 0) and y = (1, 1, 0, 1, 0). Find n11, n00, n10, n01, the simple matching coefficient, and Jaccard."
+  :back "n11 = 2, n00 = 1, n10 = 1, n01 = 1. Simple matching = 3/5 = 0.6. Jaccard = 2/4 = 0.5."}
+ {:front "x = (1, 0, 1, 1, 0) and y = (1, 1, 0, 1, 0). Compute Dice and Rogers–Tanimoto."
+  :back "Dice (w = 1/2) = 2 / (2 + 1) = 2/3. Rogers–Tanimoto (w = 2) = 3 / (3 + 4) = 3/7."}
+ {:front "How can a discrete feature with more than two values be turned into binary features? What is the downside?"
+  :back "Create one asymmetric binary feature per value (one-hot coding). Downside: it can create too many binary variables."}
+ {:front "Simple matching criterion for multi-valued discrete features"
+  :back "S = (1/d) Σ_l S_l, where S_l = w if the objects match on feature l and 0 otherwise (usually w = 1)."}
+ {:front "When should a match on a discrete feature be given weight w > 1?"
+  :back "When the feature has many possible values, so a match is less likely by chance and therefore more informative."}
+ {:front "How are ordinal features handled in proximity calculations?"
+  :back "Rescale the ranks to [0, 1] with r = (r* − 1) / (M − 1), where M is the number of levels, then use a continuous distance such as city-block or Euclidean."}
+ {:front "An ordinal feature has 4 levels. What is the rescaled value of level 3?"
+  :back "(3 − 1) / (4 − 1) = 2/3."}
+ {:front "What is a 'link' between two data points, as used for categorical data?"
+  :back "The number of neighbors the two points share. It captures neighborhood-level relationships that pairwise measures like Jaccard miss."}
+ {:front "Two general strategies for proximity with mixed feature types"
+  :back "Map every feature's contribution into [0, 1] and combine them (Gower / Kaufman–Rousseeuw style), or transform all features into binary features."}
+ {:front "In a Gower / Kaufman–Rousseeuw style mixed-feature distance, how is a continuous feature's contribution scaled?"
+  :back "|x_il − x_jl| divided by the feature's range, so it falls in [0, 1] like the discrete features' 0/1 mismatch scores."}
+ {:front "Reasonable default proximity for binary presence/absence data"
+  :back "Jaccard."}
+ {:front "Reasonable default proximity for correlated numerical features"
+  :back "Mahalanobis."}
+ {:front "Why can Euclidean distance fail for time series, and what is an alternative?"
+  :back "The same pattern shifted in time or at a different speed looks very different point by point. Dynamic Time Warping (DTW) aligns the sequences before comparing them."}
+ {:front "What does Wasserstein (optimal transport) distance measure?"
+  :back "The minimum cost of moving probability mass to turn one distribution or histogram into another."}
+ {:front "What is the modern 'learned representation' approach to proximity?"
+  :back "Learn an embedding z = f(x), often with contrastive or metric learning, so semantically similar objects are close, then measure distance or similarity in embedding space."}]
