@@ -1,8 +1,19 @@
 (ns flashcards
   "A simple command-line flashcard app.
 
-  Run with:  clojure -M flashcards.clj [clustering.edn]
-        or:  bb flashcards.clj [clustering.edn]"
+  Run with:  clojure -M flashcards.clj [command] [deck.edn] [options]
+
+  Commands:
+    study      Quiz yourself (the default)
+    topics     List every topic with how many cards cover it
+    chapters   List every chapter with how many cards cover it
+
+  Options (study only, may be repeated):
+    --topic T     Only cards tagged with topic T
+    --chapter N   Only cards relevant to chapter N
+
+  Repeating an option matches cards with any of the given values;
+  combining --topic and --chapter requires a card to match both."
   (:require [clojure.edn :as edn]
             [clojure.java.io :as io]
             [clojure.string :as str]))
@@ -12,16 +23,46 @@
 
 (def default-deck
   "Used when no deck file is found."
-  [{:front "What does (first [1 2 3]) return?"      :back "1"}])
+  [{:front    "What does (first [1 2 3]) return?"
+    :back     "1"
+    :topics   ["sequences"]
+    :chapters [1]}])
 
 (defn load-deck
-  "Reads a vector of {:front ... :back ...} maps from an EDN file,
-  falling back to the default deck if the file doesn't exist."
+  "Reads a vector of {:front :back :topics :chapters} maps from an EDN
+  file, falling back to the default deck if the file doesn't exist."
   [path]
   (if (.exists (io/file path))
     (edn/read-string (slurp path))
     (do (println (str "No deck found at " path ", using the built-in sample deck."))
         default-deck)))
+
+;; ---------------------------------------------------------------------------
+;; Filtering and listing
+
+(defn filter-deck
+  "Keeps cards that share at least one topic with `topics` (if any are
+  given) and at least one chapter with `chapters` (if any are given)."
+  [deck topics chapters]
+  (let [matches? (fn [wanted card-vals]
+                   (or (empty? wanted) (some (set wanted) card-vals)))]
+    (filter #(and (matches? topics (:topics %))
+                  (matches? chapters (:chapters %)))
+            deck)))
+
+(defn tally
+  "Returns a map of each value under key k to the number of cards it appears on."
+  [deck k]
+  (frequencies (mapcat k deck)))
+
+(defn print-tally
+  "Prints a tally as aligned `name  count` lines, using sort-fn to order entries."
+  [counts sort-fn]
+  (if (empty? counts)
+    (println "Nothing to list.")
+    (let [width (apply max (map (comp count str key) counts))]
+      (doseq [[v n] (sort-fn counts)]
+        (println (format (str "%-" width "s  %d") v n))))))
 
 ;; ---------------------------------------------------------------------------
 ;; Input helpers
@@ -87,10 +128,47 @@
 ;; ---------------------------------------------------------------------------
 ;; Entry point
 
+(def commands #{"study" "topics" "chapters"})
+
+(defn parse-args
+  "Turns command-line args into {:command :path :topics :chapters}."
+  [args]
+  (loop [[arg & more] args
+         opts {:command "study" :path "clustering.edn" :topics [] :chapters []}]
+    (cond
+      (nil? arg)
+      opts
+
+      (= arg "--topic")
+      (do (when-not (first more)
+            (println "--topic expects a topic name.")
+            (System/exit 1))
+          (recur (rest more) (update opts :topics conj (first more))))
+
+      (= arg "--chapter")
+      (let [n (some-> (first more) parse-long)]
+        (when-not n
+          (println (str "--chapter expects a number, got: " (first more)))
+          (System/exit 1))
+        (recur (rest more) (update opts :chapters conj n)))
+
+      (commands arg)
+      (recur more (assoc opts :command arg))
+
+      :else
+      (recur more (assoc opts :path arg)))))
+
 (defn -main [& args]
-  (let [deck (load-deck (or (first args) "clustering.edn"))]
-    (if (empty? deck)
-      (println "The deck is empty. Add some cards and try again.")
-      (study deck))))
+  (let [{:keys [command path topics chapters]} (parse-args args)
+        deck (load-deck path)]
+    (case command
+      "topics"   (print-tally (tally deck :topics)
+                              #(sort-by (juxt (comp - val) key) %))
+      "chapters" (print-tally (tally deck :chapters)
+                              #(sort-by key %))
+      "study"    (let [cards (vec (filter-deck deck topics chapters))]
+                   (if (empty? cards)
+                     (println "No cards match. Try `topics` or `chapters` to see what's available.")
+                     (study cards))))))
 
 (apply -main *command-line-args*)
