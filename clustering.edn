@@ -198,4 +198,4 @@
  {:front "What does Wasserstein (optimal transport) distance measure?"
   :back "The minimum cost of moving probability mass to turn one distribution or histogram into another."}
  {:front "What is the modern 'learned representation' approach to proximity?"
-  :back "Learn an embedding z = f(x), often with contrastive or metric learning, so semantically similar objects are close, then measure distance or similarity in embedding space."} ""]
+  :back "Learn an embedding z = f(x), often with contrastive or metric learning, so semantically similar objects are close, then measure distance or similarity in embedding space."}]
